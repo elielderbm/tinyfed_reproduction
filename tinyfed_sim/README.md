@@ -23,6 +23,7 @@ tinyfed-sim-analysis/
 ├─ .env                     # Configuração de parâmetros de treino
 ├─ README.md                # Este guia detalhado
 ├─ analyze.py               # Script para processar resultados e gerar gráficos/tabelas
+├─ report_results.py        # Gera relatório detalhado em Markdown a partir dos CSVs
 ├─ results/                 # (criado em runtime) CSVs e plots
 ├─ mosquitto/
 │  └─ mosquitto.conf        # Configuração do broker MQTT
@@ -94,24 +95,36 @@ Todos os resultados ficam em `./results/`.
 
 ### Arquivos gerados por cliente
 - `results/<client>_train_metrics.csv`: métricas por rodada.
-- `results/<client>_final.csv`: comparação **Local vs Agregado**.
+- `results/<client>_final.csv`: validação final do modelo **local_last**.
 
 ### Arquivo do agregador
-- `results/aggregator_log.csv`: número de clientes por rodada.
+- `results/<aggregator>_agg_metrics.csv`: número de clientes por rodada + médias de acc/recall/f1.
 
-### Script de análise
+### Scripts de análise
 Após rodar o treinamento, execute:
 ```bash
 python3 analyze.py
+python3 report_results.py --results-dir results --output results/detailed_report.md
 ```
-Gera automaticamente:
+`analyze.py` gera automaticamente:
 - Gráficos em `results/plots/`:
   - `mse_over_rounds.png`
   - `mae_over_rounds.png`
   - `accuracy_over_rounds.png`
   - `recall_over_rounds.png`
   - `f1_over_rounds.png`
-- Tabela consolidada `results/local_vs_aggregated_summary.csv` comparando todos os clientes.
+- Tabela consolidada `results/local_last_summary.csv`.
+
+`report_results.py` gera:
+- `results/detailed_report.md` com:
+  - dinâmica global por rodada (convergência e estabilidade),
+  - análise por cliente,
+  - comparação pré-treino vs final,
+  - consistência entre métricas dos clientes e do agregador,
+  - inventário dos gráficos gerados.
+
+> Dica: se `results/` estiver com permissão de root (arquivos criados pelo Docker),
+> salve em outro caminho: `python3 report_results.py --output /tmp/detailed_report.md`.
 
 ---
 
